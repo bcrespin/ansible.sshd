@@ -1,0 +1,5 @@
+#{{ ansible_managed }}
+
+{% for k, v in my_sshd_config | dictsort(true)  %}
+{{ k }} {{ v }}
+{% endfor %}

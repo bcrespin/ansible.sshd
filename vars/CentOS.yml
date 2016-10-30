@@ -1,0 +1,8 @@
+---
+sshd_support: 'true'
+sshd_os_config:
+  UsePAM: 'yes'
+  SubSystem: 'sftp /usr/libexec/openssh/sftp-server'
+  GSSAPIAuthentication: 'yes'
+  GSSAPIcleanupCredentials: 'no'
+  SyslogFacility: 'AUTHPRIV'

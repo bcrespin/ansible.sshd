@@ -1,0 +1,10 @@
+---
+# handlers file for boxeman.sshd
+
+- name: Reload service
+  service: name={{ sshd_service_name }} state=reloaded
+  tags: [ 'sshd','service' ]
+
+- name: Restart service
+  service: name={{ sshd_service_name }} state=restarted
+  tags: [ 'sshd','service' ]

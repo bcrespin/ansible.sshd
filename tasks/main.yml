@@ -1,0 +1,62 @@
+---
+- name: Loading OS Specific variables
+  include_vars: '{{ item }}'
+  with_first_found:
+    - files:
+      - "{{ ansible_distribution }}.{{ ansible_distribution_release }}.yml"
+      - "{{ ansible_distribution }}.yml"
+      - "{{ ansible_os_family }}.yml"
+      skip: 'true'
+  tags: [ 'configuration','sshd' ]
+
+- name: Check unsupported OS
+  when: sshd_support == 'false'
+  fail: "msg=' ***** {{ ansible_os_family }} NOT SUPPORTED, SKIPPING ROLE! ***** ' "
+  tags: [ 'configuration', 'sshd' ]
+
+- name: Deploying Banner file
+  template: src=sshd_banner.j2 dest=/etc/ssh/sshd_banner
+  when:
+    - sshd_banner_enable == 'true'
+    - sshd_support
+  tags: [ 'configuration','sshd' ]
+
+- name: Generating configuration file without Banner and without os specific
+  set_fact: my_sshd_config={{ sshd_config }}
+  when:
+    - sshd_banner_enable == 'false'
+    - sshd_os_config is undefined
+    - sshd_support
+  tags: [ 'configuration','sshd' ]
+
+- name: Generating configuration file without Banner and os specific
+  set_fact: my_sshd_config="{{ sshd_os_config|combine(sshd_config) }}"
+  when:
+    - sshd_banner_enable == 'false' 
+    - sshd_os_config is defined
+    - sshd_support
+  tags: [ 'configuration','sshd' ]
+
+- name: Generating configuration file with Banner and without os specific
+  set_fact: my_sshd_config="{{ sshd_config|combine({'Banner':'/etc/ssh/sshd_banner'})  }}"
+  when:
+    - sshd_banner_enable == 'true'
+    - sshd_os_config is undefined
+    - sshd_support
+  tags: [ 'configuration','sshd' ]
+
+- name: Generating configuration file with Banner and os specific
+  set_fact: my_sshd_config="{{ sshd_os_config|combine(sshd_config)|combine({'Banner':'/etc/ssh/sshd_banner'})  }}"
+  when:
+    - sshd_banner_enable == 'true' 
+    - sshd_os_config is defined
+    - sshd_support
+  tags: [ 'configuration','sshd' ]
+
+- name: Applying configuration file
+  template: src=sshd_config.j2 dest={{ sshd_config_file }} validate=' {{ sshd_binary }} -t -f %s'
+  when:
+    - sshd_support
+  notify:
+    - Reload service
+  tags: [ 'configuration','sshd','service' ]

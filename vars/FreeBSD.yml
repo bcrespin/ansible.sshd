@@ -1,0 +1,4 @@
+---
+sshd_support: 'true'
+sshd_os_config:
+  Subsystem: 'sftp /usr/libexec/sftp-server'

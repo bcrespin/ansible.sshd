@@ -1,0 +1,11 @@
+---
+# defaults file for boxeman.sshd
+sshd_support: 'false'
+sshd_config_file: '/etc/ssh/sshd_config'
+sshd_binary: '/usr/sbin/sshd'
+sshd_service_name: 'sshd'
+sshd_banner_enable: 'false'
+sshd_config:
+ PermitRootLogin: 'without-password'
+ UseDNS: "no"
+ VersionAddendum: "666"
